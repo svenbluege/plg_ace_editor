@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="editors">
+	<name>plg_editors_ace</name>
+	<version>0.0.1</version>
+	<creationDate>September 2012</creationDate>
+	<author>Sven Bluege</author>
+	<authorEmail>svenbluege@gmail.com</authorEmail>
+	<authorUrl>www.svenbluege.de</authorUrl>
+	<copyright></copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<description>PLG_ACE_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="ace">ace.php</filename>
+		<filename>index.html</filename>	
+		<folder>ace</folder>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
+		<language tag="en-GB">language/en-GB.plg_editors_ace.sys.ini</language>
+	</languages>
+</extension>
