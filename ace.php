@@ -29,8 +29,43 @@ class plgEditorAce extends JPlugin
 			    .adminform .editor { 
 			        position: relative;
 			    }
+			     .ace_editor.fullScreen {
+			        height: auto;
+			        width: auto;
+			        border: 0;
+			        margin: 0;
+			        position: fixed !important;
+			        top: 0;
+			        bottom: 0;
+			        left: 0;
+			        right: 0;
+			        z-index: 100;
+			        background: white;
+			    }
+
+			    .fullScreen {
+			        overflow: hidden;
+			    }
 			</style>
 			<script src="../plugins/editors/ace/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+
+			<script type="text/javascript">
+			
+			var dom = require("ace/lib/dom");
+
+			require("ace/commands/default_commands").commands.push(
+				{
+				    name: "Toggle Fullscreen",
+				    bindKey: "F11",
+				    exec: function(editor) {
+				        dom.toggleCssClass(document.body, "fullScreen");
+				        dom.toggleCssClass(editor.container, "fullScreen");
+				        editor.resize();
+				        console.log("got it fullscreen");
+				    }
+				}
+			)
+			</script>
 
 			';
 
@@ -136,13 +171,29 @@ class plgEditorAce extends JPlugin
 
 		$buttons = $this->_displayButtons($id, $buttons, $asset, $author);
 		$editor  = "<textarea id=\"textarea_$id\" name=\"$name\" class=\"\" style=\"display: none;\">$content</textarea>";
-		$editor  .= "<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 650px;\">$content</div>" . $buttons;
+		$editor  .= "<div id=\"resize_$id\" style=\"height: 500px;\">
+						<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 100%;\">$content</div>
+					</div>
+					press F11 for fullscreen
+					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">resize</div>" . $buttons;
 		$editor .= '
 			<script>
 			    var aceEditor = ace.edit("'.$id.'");
 			    aceEditor.setTheme("ace/theme/monokai");
 			    aceEditor.getSession().setMode("ace/mode/html");
 			    aceEditor.getSession().setUseWrapMode(true);
+
+
+			    $("resize_'.$id.'").makeResizable({
+			    	handle: $("resizeController_'.$id.'"),
+			    	modifiers: {x: false, y: "height"},
+					grid: 10,
+					onComplete: function(){
+						aceEditor.resize(true);
+					}
+				});
+
+
 			</script>';
 
 
