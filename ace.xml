@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="editors">
 	<name>plg_editors_ace</name>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<creationDate>September 2012</creationDate>
 	<author>Sven Bluege</author>
 	<authorEmail>svenbluege@gmail.com</authorEmail>
@@ -14,7 +14,7 @@
 		<filename>index.html</filename>	
 		<folder>ace</folder>
 	</files>
-	<languages>
+	<languages folder="admin">
 		<language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
 		<language tag="en-GB">language/en-GB.plg_editors_ace.sys.ini</language>
 	</languages>

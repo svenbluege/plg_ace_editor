@@ -13,6 +13,22 @@ defined('_JEXEC') or die;
  */
 class plgEditorAce extends JPlugin
 {
+
+
+	/**
+	 * Constructor
+	 *
+	 * @param  object  $subject  The object to observe
+	 * @param  array   $config   An array that holds the plugin configuration
+	 *
+	 * @since       1.5
+	 */
+	public function __construct(&$subject, $config)
+	{
+		parent::__construct($subject, $config);
+		$this->loadLanguage();
+	}
+
 	/**
 	 * Method to handle the onInitEditor event.
 	 *  - Initialises the Editor
@@ -174,8 +190,8 @@ class plgEditorAce extends JPlugin
 		$editor  .= "<div id=\"resize_$id\" style=\"height: 500px;\">
 						<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 100%;\">$content</div>
 					</div>
-					press F11 for fullscreen
-					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">resize</div>" . $buttons;
+					".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."
+					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>" . $buttons;
 		$editor .= '
 			<script>
 			    var aceEditor = ace.edit("'.$id.'");
