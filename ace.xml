@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5" type="plugin" group="editors">
+<extension version="2.5" type="plugin" group="editors" method="upgrade">
 	<name>plg_editors_ace</name>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<creationDate>September 2012</creationDate>
 	<author>Sven Bluege</author>
 	<authorEmail>svenbluege@gmail.com</authorEmail>
