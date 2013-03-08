@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 class plgEditorAce extends JPlugin
 {
 
+	private $use_spellchecker = false;
 
 	/**
 	 * Constructor
@@ -25,7 +26,9 @@ class plgEditorAce extends JPlugin
 	 */
 	public function __construct(&$subject, $config)
 	{
+		
 		parent::__construct($subject, $config);
+		$this->use_spellchecker = $config['params']->get('use_spellchecker', false);
 		$this->loadLanguage();
 	}
 
@@ -63,13 +66,17 @@ class plgEditorAce extends JPlugin
 			        overflow: hidden;
 			    }
 			</style>
-			<script src="../plugins/editors/ace/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
 
+			
+			
+			<script src="../plugins/editors/ace/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+			
 			<script type="text/javascript">
 			
-			var dom = require("ace/lib/dom");
+			var dom = ace.require("ace/lib/dom");		
+			
 
-			require("ace/commands/default_commands").commands.push(
+			ace.require("ace/commands/default_commands").commands.push(
 				{
 				    name: "Toggle Fullscreen",
 				    bindKey: "F11",
@@ -83,7 +90,16 @@ class plgEditorAce extends JPlugin
 			)
 			</script>
 
+			
+
 			';
+
+			if ($this->use_spellchecker) {
+				$txt .= '
+					<script src="../plugins/editors/ace/typo.js/typo.js" type="text/javascript" charset="utf-8"></script>
+					<script src="../plugins/editors/ace/spell-check/spellcheck_ace.js" type="text/javascript" charset="utf-8"></script>
+					';
+			}
 
 		return $txt;
 	}
@@ -101,7 +117,6 @@ class plgEditorAce extends JPlugin
 				if (item.id && item.id.indexOf("textarea_") == 0) {
 					textarea_id = item.id;
 					$(textarea_id).value = aceEditor.getValue();
-
 				}
 			});
 		';
@@ -194,7 +209,19 @@ class plgEditorAce extends JPlugin
 					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>" . $buttons;
 		$editor .= '
 			<script>
-			    var aceEditor = ace.edit("'.$id.'");
+				var aceEditor = ace.edit("'.$id.'");
+			';
+		
+		if ($this->use_spellchecker) {
+		$editor .='
+
+				    // for spellcheck_ace				
+					initialize_ACESpellCheck("'.$id.'","en_US");
+				';
+		}		
+			    
+		$editor .='
+			    console.log("editor id is '.$id.'");
 			    aceEditor.setTheme("ace/theme/monokai");
 			    aceEditor.getSession().setMode("ace/mode/html");
 			    aceEditor.getSession().setUseWrapMode(true);

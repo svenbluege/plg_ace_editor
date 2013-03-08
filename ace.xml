@@ -13,9 +13,22 @@
 		<filename plugin="ace">ace.php</filename>
 		<filename>index.html</filename>	
 		<folder>ace</folder>
+		<folder>dict</folder>
+		<folder>typo.js</folder>
+		<folder>spell-check</folder>
 	</files>
 	<languages folder="admin">
 		<language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
 		<language tag="en-GB">language/en-GB.plg_editors_ace.sys.ini</language>
 	</languages>
+		<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="use_spellchecker" type="radio" default="1" label="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_LABEL" description="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_DESC">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+		</fieldset>
+		</fields>
+	</config>
 </extension>
