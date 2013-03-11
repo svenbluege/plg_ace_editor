@@ -15,6 +15,7 @@ class plgEditorAce extends JPlugin
 {
 
 	private $use_spellchecker = false;
+	private $spellchecker_language = 'en_US';
 
 	/**
 	 * Constructor
@@ -29,6 +30,7 @@ class plgEditorAce extends JPlugin
 		
 		parent::__construct($subject, $config);
 		$this->use_spellchecker = $config['params']->get('use_spellchecker', false);
+		$this->spellchecker_language = $config['params']->get('language', 'en_US');
 		$this->loadLanguage();
 	}
 
@@ -71,9 +73,11 @@ class plgEditorAce extends JPlugin
 			
 			<script src="../plugins/editors/ace/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
 			
+			
 			<script type="text/javascript">
 			
-			var dom = ace.require("ace/lib/dom");		
+			var dom = ace.require("ace/lib/dom");					
+
 			
 
 			ace.require("ace/commands/default_commands").commands.push(
@@ -84,20 +88,23 @@ class plgEditorAce extends JPlugin
 				        dom.toggleCssClass(document.body, "fullScreen");
 				        dom.toggleCssClass(editor.container, "fullScreen");
 				        editor.resize();
-				        console.log("got it fullscreen");
 				    }
 				}
-			)
+			);
+
 			</script>
 
-			
 
 			';
 
 			if ($this->use_spellchecker) {
 				$txt .= '
-					<script src="../plugins/editors/ace/typo.js/typo.js" type="text/javascript" charset="utf-8"></script>
-					<script src="../plugins/editors/ace/spell-check/spellcheck_ace.js" type="text/javascript" charset="utf-8"></script>
+					<script src="../plugins/editors/ace/ace/src-min/ext-spellcheck.js" type="text/javascript" charset="utf-8"></script>
+					<script type="text/javascript">
+						ace.require("ace/ext/spellcheck");
+					</script>
+					<script src="../plugins/editors/ace/spell-check/spellcheck_ace.js" type="text/javascript" charset="utf-8"></script>		
+							
 					';
 			}
 
@@ -206,6 +213,7 @@ class plgEditorAce extends JPlugin
 						<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 100%;\">$content</div>
 					</div>
 					".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."
+					<div id=\"toggle_spellcheck_$id\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK')."</div>
 					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>" . $buttons;
 		$editor .= '
 			<script>
@@ -213,10 +221,12 @@ class plgEditorAce extends JPlugin
 			';
 		
 		if ($this->use_spellchecker) {
-		$editor .='
-
-				    // for spellcheck_ace				
-					initialize_ACESpellCheck("'.$id.'","en_US");
+		$editor .='	
+				    var spellChecker_'.$id.' = new SpellChecker({
+						path: "'.JURI::root().'plugins/editors/ace/SpellGoogle.php",
+						lang: "'.$this->spellchecker_language.'",
+						editor: "'.$id.'",
+					});								
 				';
 		}		
 			    
@@ -226,7 +236,7 @@ class plgEditorAce extends JPlugin
 			    aceEditor.getSession().setMode("ace/mode/html");
 			    aceEditor.getSession().setUseWrapMode(true);
 
-
+			  
 			    $("resize_'.$id.'").makeResizable({
 			    	handle: $("resizeController_'.$id.'"),
 			    	modifiers: {x: false, y: "height"},

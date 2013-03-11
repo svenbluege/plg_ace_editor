@@ -28,6 +28,11 @@
 					<option value="0">No</option>
 					<option value="1">Yes</option>
 				</field>
+				<field name="language" type="radio" default="en" label="PLG_EDITOR_ACE_CONFIG_LANG_LABEL" description="PLG_EDITOR_ACE_CONFIG_LANG_DESC">
+					<option value="de">de</option>
+					<option value="en">en</option>
+				</field>
+				
 		</fieldset>
 		</fields>
 	</config>
