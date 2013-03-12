@@ -69,7 +69,7 @@ function get_matches($lang, $text)
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 	$xml_response = curl_exec($ch);
 	curl_close($ch);
-	print_r($xml_response);
+
 	$xml = simplexml_load_string($xml_response);
 
 	$matches = array();

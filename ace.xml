@@ -11,11 +11,10 @@
 	<description>PLG_ACE_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="ace">ace.php</filename>
+		<filename>SpellGoogle.php</filename>	
 		<filename>index.html</filename>	
 		<folder>ace</folder>
-		<folder>dict</folder>
-		<folder>typo.js</folder>
-		<folder>spell-check</folder>
+		<folder>js</folder>
 	</files>
 	<languages folder="admin">
 		<language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
@@ -24,14 +23,13 @@
 		<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="use_spellchecker" type="radio" default="1" label="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_LABEL" description="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_DESC">
+				<field name="use_spellchecker" type="radio" default="0" label="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_LABEL" description="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_DESC">
 					<option value="0">No</option>
 					<option value="1">Yes</option>
 				</field>
 				<field name="language" type="radio" default="en" label="PLG_EDITOR_ACE_CONFIG_LANG_LABEL" description="PLG_EDITOR_ACE_CONFIG_LANG_DESC">
 					<option value="de">de</option>
 					<option value="en">en</option>
-					<option value="es">es</option>
 				</field>
 				
 		</fieldset>

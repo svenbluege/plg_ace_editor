@@ -103,7 +103,8 @@ class plgEditorAce extends JPlugin
 					<script type="text/javascript">
 						ace.require("ace/ext/spellcheck");
 					</script>
-					<script src="../plugins/editors/ace/spell-check/spellcheck_ace.js" type="text/javascript" charset="utf-8"></script>		
+					<script src="../plugins/editors/ace/js/typo/typo.js" type="text/javascript" charset="utf-8"></script>		
+					<script src="../plugins/editors/ace/js/spellcheck_ace.js" type="text/javascript" charset="utf-8"></script>		
 							
 					';
 			}
@@ -220,13 +221,12 @@ class plgEditorAce extends JPlugin
 		$editor .= "			
 					
 					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_enable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_ENABLE')."</div>
-					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_disable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."</div>
-			
-					<select style=\"padding-right: 20px;  float:left\" id=\"".$id."_lang\" onChange=\"spellChecker_$id.languageSelectionChanged();\">
-						<option value=\"en\">en</option>
-						<option value=\"de\">de</option>
-						<option value=\"es\">es</option>
-					</select>";
+					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_disable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."
+						<span class=\"".$id."_lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_de\">De</span>
+						<span class=\"".$id."_lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_en\">En</span>
+					</div>
+				
+					";
 		}
 	    $editor .= "			
 					<div style=\"clear:both\"></div>
@@ -239,12 +239,11 @@ class plgEditorAce extends JPlugin
 		if ($this->use_spellchecker) {
 		$editor .='	
 				    var spellChecker_'.$id.' = new SpellChecker({
-						path: "'.JURI::root().'plugins/editors/ace/SpellGoogle.php",
+						path: "'.JURI::root().'plugins/editors/ace/",
 						lang: "'.$this->spellchecker_language.'",
 						editor: "'.$id.'",
 						buttonid_enable: "'.$id.'_enable",
 						buttonid_disable: "'.$id.'_disable",
-						selectid_lang: "'.$id.'_lang",
 					});								
 				';
 		}		
@@ -294,7 +293,7 @@ class plgEditorAce extends JPlugin
 			$results = $this->_subject->getButtons($name, $buttons, $asset, $author);
 
 			// This will allow plugins to attach buttons or change the behavior on the fly using AJAX
-			$return .= '<div id="editor-xtd-buttons"><div class="btn-toolbar">\n';
+			$return .= '<div id="editor-xtd-buttons"><div class="btn-toolbar">'."\n";
 
 			foreach ($results as $button)
 			{

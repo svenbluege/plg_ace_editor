@@ -1,3 +1,5 @@
+// SpellChecker is based on https://github.com/swenson/ace_spell_check_js
+
 var SpellChecker = new Class({
 	Implements: [Options],
 	
@@ -5,14 +7,17 @@ var SpellChecker = new Class({
 	currently_spellchecking: false,
 	markers_present: [],
 	interval : null,
+	spellchecker: null,
+		
 	options: {
+		// driver can be 'typo' or 'google'
+		driver: 'typo',
 		lang: 'de',
-		path: '../plugins/editors/ace/SpellGoogle.php',
+		path: '../plugins/editors/ace/',
 		editor: 'editor',
 		useGutter: false,
 		buttonid_enable: "_enable",
 		buttonid_disable: "_disable",
-		selectid_lang: "_lang",
 		spellcheckEnabled: true,
 	},
 	
@@ -22,14 +27,6 @@ var SpellChecker = new Class({
 	    this.setOptions(options);
 	    this.setOptions(this.loadFromCookie());
 	    
-	    // set select box to the right value 
-	    for(i=0; 0<$(this.options.selectid_lang).options.length; i++) {
-	    	if ($(this.options.selectid_lang).options[i].value==this.options.lang) {
-	    		$(this.options.selectid_lang).selectedIndex = i;
-	    		break;
-	    	}
-	    }
-	    
 	    $(this.options.buttonid_enable).addEvent('click',function(e){ 
 	    	this.enable();
 	    }.bind(this));
@@ -38,10 +35,16 @@ var SpellChecker = new Class({
 	    	this.disable();
 	    }.bind(this));
 	        
-	    $(this.options.selectid_lang).addEvent('change', function(e) {
-	    	this.languageSelectionChanged();
-	    }.bind(this));
+		$$('.'+this.options.editor+'_lang').addEvent('click', function(e) {
+			var lang=e.target.id.replace(this.options.editor+'_lang_','');
+			this.languageSelectionChanged(lang);
+			e.preventDefault();
+			e.stopPropagation();
+		}.bind(this));
 
+		$$('.'+this.options.editor+'_lang').setStyle('font-weight','normal');
+	    $(this.options.editor+'_lang_'+this.options.lang).setStyle('font-weight','bold');
+		
 		if (this.options.spellcheckEnabled) {    	
 		 	this.enable();
 	    } else {
@@ -49,32 +52,30 @@ var SpellChecker = new Class({
 	    }	    
 	},
 		
-	languageSelectionChanged: function() {
-		this.options.lang = $(this.options.selectid_lang).options[$(this.options.selectid_lang).selectedIndex].value;
+	languageSelectionChanged: function(lang) {
+		this.options.lang = lang;
+		
+		if (this.options.spellcheckEnabled) {
+			if (this.options.driver=='typo' && this.options.spellcheckEnabled) {
+		    	this.spellchecker = new TypoSpellChecker(this.options);
+		    } else {
+		    	this.spellchecker = new GoogleSpellChecker(this.options);
+		    }
+	    }
+	    
+	    $$('.'+this.options.editor+'_lang').setStyle('font-weight','normal');
+	    $(this.options.editor+'_lang_'+this.options.lang).setStyle('font-weight','bold');
+	    
+	    
 		this.onContentChange();
 		this.saveToCookie();
 	},
-		
-	// perform the check
-    check: function( text, callback) {
-    	var myJSONRemote = new Request.JSON({
-    		url: this.options.path, 
-    		onSuccess: function(result){    			
-			    callback(result);
-			},
-			data: {
-				lang:   this.options.lang,
-				text: text
-			},
-			method: 'POST',
-		});
-		myJSONRemote.send();    	
-    },
+	
     
     // Check the spelling of a line, and return [start, end]-pairs for misspelled words.
 	misspelled: function(linenumber, line) {
 		try {
-			this.check(line, function(badWords) {
+			this.spellchecker.check(line, function(badWords) {
 				this.markTypos(linenumber, line, badWords);	
 			}.bind(this));
 		} catch (e) {
@@ -105,8 +106,7 @@ var SpellChecker = new Class({
 			 
 			var Range = ace.require('ace/range').Range
 			var lines = session.getDocument().getAllLines();
-
-			for (i=0; i<lines.length; i++) {
+			for (var i=0; i<lines.length; i++) {
 				// Clear the gutter.
 				if (this.options.useGutter) {
 					session.removeGutterDecoration(i, "misspelled");
@@ -165,6 +165,13 @@ var SpellChecker = new Class({
 
 	// register to the change event of the editor and run a spellcheck in a given interval.
 	enable: function () {
+		
+		if (this.options.driver=='typo') {
+	    	this.spellchecker = new TypoSpellChecker(this.options);
+	    } else {
+	    	this.spellchecker = new GoogleSpellChecker(this.options);
+	    }
+	    		
 		$(this.options.buttonid_enable).hide();
     	$(this.options.buttonid_disable).show();
 		this.onContentChange();
@@ -203,6 +210,77 @@ var SpellChecker = new Class({
 		return {};
 	},
     
+});
+
+var TypoSpellChecker = new Class({	
+	Implements: [Options],
+		
+	dictionary: null, 
+		
+	options: {
+		lang: 'en',
+		path: '../plugins/editors/ace/',
+	},
+	
+	// do the initialization
+	initialize: function(options) {		
+	    this.setOptions(options);
+	    
+	    if (this.options.lang=='en') {
+	    	this.options.lang='en_US';
+	    }
+	    if (this.options.lang=='de') {
+	    	this.options.lang='de_DE';
+	    }	    
+	    this.dictionary = new Typo(this.options.lang, null, null, {platform: 'none', dictionaryPath: this.options.path+'js/typo/dictionaries'});
+	},
+	
+	// perform the check
+    check: function( text, callback) {
+		var words = text.split(' ');
+		var bads = new Array();
+		for (var word in words) {
+			var x = words[word] + "";
+			var checkWord = x.replace(/[^a-zA-Z']/g, '');
+			if (!this.dictionary.check(checkWord)) {
+				bads.push(checkWord);
+			}
+		}
+		callback(bads);
+    },
+
+});
+
+var GoogleSpellChecker = new Class({
+	Implements: [Options],
+	
+	options: {
+		lang: 'en',
+		path: '../plugins/editors/ace/',
+	},
+	
+	// do the initialization
+	initialize: function(options) {		
+	    this.setOptions(options);
+	   
+	},
+		
+	// perform the check
+    check: function( text, callback) {
+    	var myJSONRemote = new Request.JSON({
+    		url: this.options.path+'SpellGoogle.php', 
+    		onSuccess: function(result){    			
+			    callback(result);
+			},
+			data: {
+				lang:   this.options.lang,
+				text: text
+			},
+			method: 'POST',
+		});
+		myJSONRemote.send();    	
+    },	
+	
 });
 
 document.write("<style type='text/css'>.ace_marker-layer .misspelled { position: absolute; z-index: -2; border-bottom: 1px solid red !important; margin-bottom: -1px; }</style>");
