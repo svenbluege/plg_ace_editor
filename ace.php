@@ -212,9 +212,25 @@ class plgEditorAce extends JPlugin
 		$editor  .= "<div id=\"resize_$id\" style=\"height: 500px;\">
 						<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 100%;\">$content</div>
 					</div>
-					".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."
-					<div id=\"toggle_spellcheck_$id\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK')."</div>
-					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>" . $buttons;
+					
+					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>
+					<div style=\"padding-right: 20px; float:left\">".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."</div>
+					";
+		if ($this->use_spellchecker) {			
+		$editor .= "			
+					
+					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_enable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_ENABLE')."</div>
+					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_disable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."</div>
+			
+					<select style=\"padding-right: 20px;  float:left\" id=\"".$id."_lang\" onChange=\"spellChecker_$id.languageSelectionChanged();\">
+						<option value=\"en\">en</option>
+						<option value=\"de\">de</option>
+						<option value=\"es\">es</option>
+					</select>";
+		}
+	    $editor .= "			
+					<div style=\"clear:both\"></div>
+					" . $buttons;
 		$editor .= '
 			<script>
 				var aceEditor = ace.edit("'.$id.'");
@@ -226,12 +242,15 @@ class plgEditorAce extends JPlugin
 						path: "'.JURI::root().'plugins/editors/ace/SpellGoogle.php",
 						lang: "'.$this->spellchecker_language.'",
 						editor: "'.$id.'",
+						buttonid_enable: "'.$id.'_enable",
+						buttonid_disable: "'.$id.'_disable",
+						selectid_lang: "'.$id.'_lang",
 					});								
 				';
 		}		
 			    
 		$editor .='
-			    console.log("editor id is '.$id.'");
+			    
 			    aceEditor.setTheme("ace/theme/monokai");
 			    aceEditor.getSession().setMode("ace/mode/html");
 			    aceEditor.getSession().setUseWrapMode(true);

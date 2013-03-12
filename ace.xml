@@ -31,6 +31,7 @@
 				<field name="language" type="radio" default="en" label="PLG_EDITOR_ACE_CONFIG_LANG_LABEL" description="PLG_EDITOR_ACE_CONFIG_LANG_DESC">
 					<option value="de">de</option>
 					<option value="en">en</option>
+					<option value="es">es</option>
 				</field>
 				
 		</fieldset>
