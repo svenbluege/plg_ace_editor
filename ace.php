@@ -32,7 +32,7 @@ class plgEditorAce extends JPlugin
 		$this->use_spellchecker = $config['params']->get('use_spellchecker', false);
 		$this->spellchecker_language = $config['params']->get('language', 'en_US');
 		$this->syntax = $config['params']->get('syntax', 'html');
-		$this->showPrintMargin = $config['params']->get('showPrintMargin', false);
+		$this->showPrintMargin = $config['params']->get('showPrintMargin', 'false');
 		$this->loadLanguage();
 	}
 
