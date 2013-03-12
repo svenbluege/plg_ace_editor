@@ -1,4 +1,37 @@
-// SpellChecker is based on https://github.com/swenson/ace_spell_check_js
+
+//fix strange joomla mootools behavior
+if (console) {
+	console.log(this.MooTools);
+}
+
+if (this.MooTools.build=='ab8ea8824dc3b24b6666867a2c4ed58ebb762cf0') {
+	delete Function.prototype.bind;
+
+	Function.implement({
+
+		/*<!ES5-bind>*/
+		bind: function(that){
+			var self = this,
+				args = arguments.length > 1 ? Array.slice(arguments, 1) : null,
+				F = function(){};
+
+			var bound = function(){
+				var context = that, length = arguments.length;
+				if (this instanceof bound){
+					F.prototype = self.prototype;
+					context = new F;
+				}
+				var result = (!args && !length)
+					? self.call(context)
+					: self.apply(context, args && length ? args.concat(Array.slice(arguments)) : args || arguments);
+				return context == that ? result : context;
+			};
+			return bound;
+		},
+		/*</!ES5-bind>*/
+	});
+}
+
 
 var AceWrapper = new Class({
 	Implements: [Options],
@@ -18,7 +51,7 @@ var AceWrapper = new Class({
 	
 	// do the initialization
 	initialize: function(options) {
-		
+	
 	    this.setOptions(options);	    
 	    this.setOptions(this.loadFromCookie());
 	    
@@ -32,11 +65,8 @@ var AceWrapper = new Class({
 	    
 	    $(this.options.wrapModeButtonId).addEvent('click',this.wrapModeClick.bind(this));
 	    $(this.options.wrapModeButtonId).set('data-wrap',this.options.wrapmode);
-	    console.log(this.options.wrapmode);
-	    this.wrapModeClick();
 
-	    
-	    
+	    this.wrapModeClick();
 	},
 	
 	wrapModeClick: function(e) {
