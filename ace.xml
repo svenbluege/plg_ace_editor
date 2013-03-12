@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="editors" method="upgrade">
 	<name>plg_editors_ace</name>
-	<version>0.0.5</version>
+	<version>0.0.6</version>
 	<creationDate>September 2012</creationDate>
 	<author>Sven Bluege</author>
 	<authorEmail>svenbluege@gmail.com</authorEmail>
@@ -22,7 +22,7 @@
 	</languages>
 		<config>
 		<fields name="params">
-			<fieldset name="basic">
+			<fieldset name="SPELLCHECK">
 				<field name="use_spellchecker" type="radio" default="0" label="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_LABEL" description="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_DESC">
 					<option value="0">No</option>
 					<option value="1">Yes</option>
@@ -31,7 +31,20 @@
 					<option value="de">de</option>
 					<option value="en">en</option>
 				</field>
-				
+			</fieldset>
+			<fieldset name="basic">
+				<field name="syntax" type="radio" default="html" label="PLG_EDITOR_ACE_CONFIG_SYNTAX_LABEL" description="PLG_EDITOR_ACE_CONFIG_SYNATX_DESC">
+					<option value="html">HTML</option>
+					<option value="markdown">MarkDown</option>
+				</field>
+				<field name="showPrintMargin" type="radio" default="false" label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL" description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC">
+					<option value="true">on</option>
+					<option value="false">off</option>
+				</field>
+				<field name="showPrintMargin" type="radio" default="false" label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL" description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC">
+					<option value="true">on</option>
+					<option value="false">off</option>
+				</field>
 		</fieldset>
 		</fields>
 	</config>

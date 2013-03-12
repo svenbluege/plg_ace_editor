@@ -31,6 +31,8 @@ class plgEditorAce extends JPlugin
 		parent::__construct($subject, $config);
 		$this->use_spellchecker = $config['params']->get('use_spellchecker', false);
 		$this->spellchecker_language = $config['params']->get('language', 'en_US');
+		$this->syntax = $config['params']->get('syntax', 'html');
+		$this->showPrintMargin = $config['params']->get('showPrintMargin', false);
 		$this->loadLanguage();
 	}
 
@@ -91,9 +93,11 @@ class plgEditorAce extends JPlugin
 				    }
 				}
 			);
+			
+			
 
 			</script>
-
+			<script src="../plugins/editors/ace/js/aceWrapper.js" type="text/javascript" charset="utf-8"></script>		
 
 			';
 
@@ -118,13 +122,13 @@ class plgEditorAce extends JPlugin
 	 *
 	 * @return	string JavaScript save function
 	 */
-	function onSave()
+	function onSave($id)
 	{
 		return '
 			$$("textarea").each(function(item) {
 				if (item.id && item.id.indexOf("textarea_") == 0) {
 					textarea_id = item.id;
-					$(textarea_id).value = aceEditor.getValue();
+					$(textarea_id).value = aceWrapper'.$id.'.aceEditor.getValue();
 				}
 			});
 		';
@@ -139,7 +143,7 @@ class plgEditorAce extends JPlugin
 	 */
 	function onGetContent($id)
 	{
-		return "aceEditor.getValue();\n";
+		return "aceWrapper$id.aceEditor.getValue();\n";
 	}
 
 	/**
@@ -152,7 +156,7 @@ class plgEditorAce extends JPlugin
 	 */
 	function onSetContent($id, $html)
 	{
-		return "aceEditor.setValue($html);\n";
+		return "aceWrapper$id.aceEditor.setValue($html);\n";
 	}
 
 	/**
@@ -168,7 +172,7 @@ class plgEditorAce extends JPlugin
 		if (!$done) {
 			$doc = JFactory::getDocument();
 			$js = "\tfunction jInsertEditorText(text, editor) {
-				aceEditor.insert(text);
+				aceWrapper$id.aceEditor.insert(text);
 			}";
 			$doc->addScriptDeclaration($js);
 		}
@@ -214,7 +218,8 @@ class plgEditorAce extends JPlugin
 						<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 100%;\">$content</div>
 					</div>
 					
-					<div style=\"cursor: n-resize;float: right; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>
+					<div style=\"cursor: n-resize;float: right; padding-left: 20px; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>
+					<div style=\"cursor: pointer; float: right; text-align: right;\" id=\"softwrap_$id\">".JText::_('PLG_EDITOR_ACE_SOFTWRAP')."</div>
 					<div style=\"padding-right: 20px; float:left\">".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."</div>
 					";
 		if ($this->use_spellchecker) {			
@@ -233,7 +238,15 @@ class plgEditorAce extends JPlugin
 					" . $buttons;
 		$editor .= '
 			<script>
-				var aceEditor = ace.edit("'.$id.'");
+				var aceWrapper'.$id.' = new AceWrapper({
+					editorid: "'.$id.'",
+					theme: "ace/theme/monokai",
+					mode: "ace/mode/'.$this->syntax.'",
+					showPrintMargin: '.$this->showPrintMargin.',
+					useWrapMode: true,
+					wrapModeButtonId: "softwrap_'.$id.'",
+
+				});
 			';
 		
 		if ($this->use_spellchecker) {
@@ -250,17 +263,12 @@ class plgEditorAce extends JPlugin
 			    
 		$editor .='
 			    
-			    aceEditor.setTheme("ace/theme/monokai");
-			    aceEditor.getSession().setMode("ace/mode/html");
-			    aceEditor.getSession().setUseWrapMode(true);
-
-			  
 			    $("resize_'.$id.'").makeResizable({
 			    	handle: $("resizeController_'.$id.'"),
 			    	modifiers: {x: false, y: "height"},
 					grid: 10,
 					onComplete: function(){
-						aceEditor.resize(true);
+						aceWrapper'.$id.'.aceEditor.resize(true);
 					}
 				});
 
@@ -293,7 +301,7 @@ class plgEditorAce extends JPlugin
 			$results = $this->_subject->getButtons($name, $buttons, $asset, $author);
 
 			// This will allow plugins to attach buttons or change the behavior on the fly using AJAX
-			$return .= '<div id="editor-xtd-buttons"><div class="btn-toolbar">'."\n";
+			$return .= '<div id="editor-xtd-buttons"><div class="btn-toolbar">\n';
 
 			foreach ($results as $button)
 			{
