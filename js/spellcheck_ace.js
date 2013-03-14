@@ -134,14 +134,15 @@ var SpellChecker = new Class({
 	// marks the found errors in a line		
 	markTypos: function(linenumber, line, badWords) {
 		var session = ace.edit(this.options.editor).getSession();
-		var words = line.split(/[^a-zA-Z\']/g);
+		var words = line.split(/[^a-zA-ZÖÄÜöäüß\']/g);
 		var i = 0;
 		var misspellings = [];
 		for (word in words) {
 		  var x = words[word] + "";
-		  var checkWord = x.replace(/[^a-zA-Z']/g, '');
+		  var checkWord = x;
 		  
 		  if (badWords.contains(checkWord)) {
+		  	  	console.log(checkWord);
 		       misspellings[misspellings.length] = [i, i + words[word].length];
 		  }
 		  i += words[word].length + 1;
@@ -237,15 +238,17 @@ var TypoSpellChecker = new Class({
 	
 	// perform the check
     check: function( text, callback) {
-		var words = text.split(' ');
+		var words = text.split(/[^a-zA-ZÜÖÄöäüß']/g);
 		var bads = new Array();
-		for (var word in words) {
-			var x = words[word] + "";
-			var checkWord = x.replace(/[^a-zA-Z']/g, '');
+		for (var i=0; i<words.length; i++) {
+			
+			var x = words[i] + "";
+			var checkWord = x;
 			if (!this.dictionary.check(checkWord)) {
 				bads.push(checkWord);
 			}
 		}
+		console.log(bads);
 		callback(bads);
     },
 
