@@ -142,7 +142,6 @@ var SpellChecker = new Class({
 		  var checkWord = x;
 		  
 		  if (badWords.contains(checkWord)) {
-		  	  	console.log(checkWord);
 		       misspellings[misspellings.length] = [i, i + words[word].length];
 		  }
 		  i += words[word].length + 1;
@@ -248,7 +247,6 @@ var TypoSpellChecker = new Class({
 				bads.push(checkWord);
 			}
 		}
-		console.log(bads);
 		callback(bads);
     },
 

@@ -124,14 +124,15 @@ class plgEditorAce extends JPlugin
 	 */
 	function onSave($id)
 	{
-		return '
+		/*return '
 			$$("textarea").each(function(item) {
 				if (item.id && item.id.indexOf("textarea_") == 0) {
 					textarea_id = item.id;
 					$(textarea_id).value = aceWrapper'.$id.'.aceEditor.getValue();
 				}
 			});
-		';
+		';*/
+		return "";
 	}
 
 	/**
@@ -270,10 +271,16 @@ class plgEditorAce extends JPlugin
 					onComplete: function(){
 						aceWrapper'.$id.'.aceEditor.resize(true);
 					}
-				});
+				});';
 
+		$editor .= '
+			console.log($("textarea_'.$id.'"));
+			$("textarea_'.$id.'").getParent("form").addEvent("submit", function() {
+				$("textarea_'.$id.'").value = aceWrapper'.$id.'.aceEditor.getValue();
+			});
+		';
 
-			</script>';
+		$editor .='	</script>';
 
 
 		return $editor;
