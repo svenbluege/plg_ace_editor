@@ -63,7 +63,6 @@ class plgEditorAce extends JPlugin
 			        left: 0;
 			        right: 0;
 			        z-index: 2000;
-			        background: white;
 			    }
 
 			    .fullScreen {
