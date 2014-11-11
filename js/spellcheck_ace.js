@@ -12,13 +12,15 @@ var SpellChecker = new Class({
 	options: {
 		// driver can be 'typo' or 'google'
 		driver: 'typo',
+        // the container to access language switch buttons.
+        container: null,
 		lang: 'de',
 		path: '../plugins/editors/ace/',
 		editor: 'editor',
 		useGutter: false,
 		buttonid_enable: "_enable",
 		buttonid_disable: "_disable",
-		spellcheckEnabled: true,
+		spellcheckEnabled: true
 	},
 	
 	// do the initialization
@@ -35,14 +37,14 @@ var SpellChecker = new Class({
 	    	this.disable();
 	    }.bind(this));
 	        
-		$$('.'+this.options.editor+'_lang').addEvent('click', function(e) {
+		this.options.container.getElements('.lang').addEvent('click', function(e) {
 			var lang=e.target.id.replace(this.options.editor+'_lang_','');
 			this.languageSelectionChanged(lang);
 			e.preventDefault();
 			e.stopPropagation();
 		}.bind(this));
 
-		$$('.'+this.options.editor+'_lang').setStyle('font-weight','normal');
+        this.options.container.getElements('.lang').setStyle('font-weight','normal');
 	    $(this.options.editor+'_lang_'+this.options.lang).setStyle('font-weight','bold');
 		
 		if (this.options.spellcheckEnabled) {    	
@@ -62,8 +64,8 @@ var SpellChecker = new Class({
 		    	this.spellchecker = new GoogleSpellChecker(this.options);
 		    }
 	    }
-	    
-	    $$('.'+this.options.editor+'_lang').setStyle('font-weight','normal');
+
+        this.options.container.getElements('.lang').setStyle('font-weight','normal');
 	    $(this.options.editor+'_lang_'+this.options.lang).setStyle('font-weight','bold');
 	    
 	    
@@ -174,6 +176,7 @@ var SpellChecker = new Class({
 	    		
 		$(this.options.buttonid_enable).hide();
     	$(this.options.buttonid_disable).show();
+        this.options.container.getElements('.lang').show();
 		this.onContentChange();
 		this.spell_check();
 		ace.edit(this.options.editor).getSession().on('change', this.onContentChange.bind(this));
@@ -184,6 +187,7 @@ var SpellChecker = new Class({
 	
 	disable: function() {
 		$(this.options.buttonid_disable).hide();
+        this.options.container.getElements('.lang').hide();
     	$(this.options.buttonid_enable).show();
 		// Clear the markers.
 		this.clearMarkers();
@@ -208,7 +212,7 @@ var SpellChecker = new Class({
 		   	} catch(e) {}
 		}
 		return {};
-	},
+	}
     
 });
 
@@ -219,7 +223,7 @@ var TypoSpellChecker = new Class({
 		
 	options: {
 		lang: 'en',
-		path: '../plugins/editors/ace/',
+		path: '../plugins/editors/ace/'
 	},
 	
 	// do the initialization
@@ -248,7 +252,7 @@ var TypoSpellChecker = new Class({
 			}
 		}
 		callback(bads);
-    },
+    }
 
 });
 
@@ -257,7 +261,7 @@ var GoogleSpellChecker = new Class({
 	
 	options: {
 		lang: 'en',
-		path: '../plugins/editors/ace/',
+		path: '../plugins/editors/ace/'
 	},
 	
 	// do the initialization
@@ -277,10 +281,10 @@ var GoogleSpellChecker = new Class({
 				lang:   this.options.lang,
 				text: text
 			},
-			method: 'POST',
+			method: 'POST'
 		});
 		myJSONRemote.send();    	
-    },	
+    }
 	
 });
 

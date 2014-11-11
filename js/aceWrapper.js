@@ -1,7 +1,7 @@
 
 //fix strange joomla mootools behavior
 if (console) {
-	console.log(this.MooTools);
+	//console.log(this.MooTools);
 }
 
 if (this.MooTools.build=='ab8ea8824dc3b24b6666867a2c4ed58ebb762cf0') {
@@ -27,7 +27,7 @@ if (this.MooTools.build=='ab8ea8824dc3b24b6666867a2c4ed58ebb762cf0') {
 				return context == that ? result : context;
 			};
 			return bound;
-		},
+		}
 		/*</!ES5-bind>*/
 	});
 }
@@ -46,7 +46,7 @@ var AceWrapper = new Class({
 		showPrintMargin: false,
 		useWrapMode: true,
 		wrapModeButtonId: 'softwrap_',
-		wrapmode: 'off',
+		wrapmode: 'off'
 	},
 	
 	// do the initialization
@@ -102,7 +102,7 @@ var AceWrapper = new Class({
 	
 	saveToCookie: function() {
 		var options = {
-			wrapmode: this.options.wrapmode,			
+			wrapmode: this.options.wrapmode
 		}
 		var myCookie = Cookie.write('plg_editors_ace_wrapper', JSON.encode(options));
 	},
@@ -115,7 +115,7 @@ var AceWrapper = new Class({
 		   	} catch(e) {}
 		}
 		return {};
-	},
+	}
 	
 });
 

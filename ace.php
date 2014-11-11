@@ -52,22 +52,27 @@ class plgEditorAce extends JPlugin
 			    .adminform .editor { 
 			        position: relative;
 			    }
-			     .ace_editor.fullScreen {
-			        height: auto;
-			        width: auto;
-			        border: 0;
-			        margin: 0;
-			        position: fixed !important;
-			        top: 0;
-			        bottom: 0;
-			        left: 0;
-			        right: 0;
-			        z-index: 2000;
+
+			    .ace-buttons {
+			        min-width: 400px;
 			    }
 
-			    .fullScreen {
-			        overflow: hidden;
-			    }
+			    .ace_editor.fullScreen {
+                    height: auto;
+                    width: auto;
+                    border: 0;
+                    margin: 0;
+                    position: fixed !important;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    z-index: 2000;
+                }
+
+                .fullScreen {
+                    overflow: hidden
+                }
 			</style>
 
 			
@@ -78,7 +83,8 @@ class plgEditorAce extends JPlugin
 			<script type="text/javascript">
 			
 			var dom = ace.require("ace/lib/dom");					
-
+            var aceWrapper = [];
+            var spellchecker = [];
 			
 
 			ace.require("ace/commands/default_commands").commands.push(
@@ -86,9 +92,11 @@ class plgEditorAce extends JPlugin
 				    name: "Toggle Fullscreen",
 				    bindKey: "F11",
 				    exec: function(editor) {
-				        dom.toggleCssClass(document.body, "fullScreen");
-				        dom.toggleCssClass(editor.container, "fullScreen");
-				        editor.resize();
+				        var fullScreen = dom.toggleCssClass(document.body, "fullScreen");
+                        dom.setCssClass(editor.container, "fullScreen", fullScreen);
+                        editor.setAutoScrollEditorIntoView(!fullScreen);
+                        editor.resize(true);
+
 				    }
 				}
 			);
@@ -123,15 +131,7 @@ class plgEditorAce extends JPlugin
 	 */
 	function onSave($id)
 	{
-		/*return '
-			$$("textarea").each(function(item) {
-				if (item.id && item.id.indexOf("textarea_") == 0) {
-					textarea_id = item.id;
-					$(textarea_id).value = aceWrapper'.$id.'.aceEditor.getValue();
-				}
-			});
-		';*/
-		return "";
+        return "document.getElementById('$id').value = aceWrapper['.$id.'].aceEditor.getValue();\n";
 	}
 
 	/**
@@ -143,7 +143,7 @@ class plgEditorAce extends JPlugin
 	 */
 	function onGetContent($id)
 	{
-		return "aceWrapper$id.aceEditor.getValue();\n";
+		return "aceWrapper['$id'].aceEditor.getValue();\n";
 	}
 
 	/**
@@ -156,7 +156,8 @@ class plgEditorAce extends JPlugin
 	 */
 	function onSetContent($id, $html)
 	{
-		return "aceWrapper$id.aceEditor.setValue($html);\n";
+
+		return "aceWrapper['$id'].aceEditor.setValue($html);\n";
 	}
 
 	/**
@@ -170,10 +171,12 @@ class plgEditorAce extends JPlugin
 
 		// Do this only once.
 		if (!$done) {
+            $done = true;
 			$doc = JFactory::getDocument();
-			$js = "\tfunction jInsertEditorText(text, editor) {
-				aceWrapper$id.aceEditor.insert(text);
-			}";
+			$js = "\n" .
+                  "function jInsertEditorText(text, editor) {" .
+				  "   aceWrapper[editor].aceEditor.insert(text);" .
+			      "}\n";
 			$doc->addScriptDeclaration($js);
 		}
 
@@ -224,12 +227,14 @@ class plgEditorAce extends JPlugin
 					";
 		if ($this->use_spellchecker) {			
 		$editor .= "			
-					
+				<div class=\"ace-buttons\" id=\"buttons_$id\">
 					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_enable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_ENABLE')."</div>
-					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_disable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."
-						<span class=\"".$id."_lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_de\">De</span>
-						<span class=\"".$id."_lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_en\">En</span>
+					<div style=\"padding-right: 20px; float:left\">
+					    <span style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_disable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."</span>
+						<span class=\"lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_de\">De</span>
+						<span class=\"lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_en\">En</span>
 					</div>
+				</div>
 				
 					";
 		}
@@ -238,25 +243,27 @@ class plgEditorAce extends JPlugin
 					" . $buttons;
 		$editor .= '
 			<script>
-				var aceWrapper'.$id.' = new AceWrapper({
+
+				    aceWrapper[\''.$id.'\'] = new AceWrapper({
 					editorid: "'.$id.'",
 					theme: "ace/theme/monokai",
 					mode: "ace/mode/'.$this->syntax.'",
 					showPrintMargin: '.$this->showPrintMargin.',
 					useWrapMode: true,
-					wrapModeButtonId: "softwrap_'.$id.'",
+					wrapModeButtonId: "softwrap_'.$id.'"
 
 				});
 			';
 		
 		if ($this->use_spellchecker) {
 		$editor .='	
-				    var spellChecker_'.$id.' = new SpellChecker({
+				    spellchecker[\''.$id.'\'] = new SpellChecker({
 						path: "'.JURI::root().'plugins/editors/ace/",
+						container: $(\'buttons_'.$id.'\'),
 						lang: "'.$this->spellchecker_language.'",
 						editor: "'.$id.'",
 						buttonid_enable: "'.$id.'_enable",
-						buttonid_disable: "'.$id.'_disable",
+						buttonid_disable: "'.$id.'_disable"
 					});								
 				';
 		}		
@@ -268,14 +275,14 @@ class plgEditorAce extends JPlugin
 			    	modifiers: {x: false, y: "height"},
 					grid: 10,
 					onComplete: function(){
-						aceWrapper'.$id.'.aceEditor.resize(true);
+						aceWrapper[\''.$id.'\'].aceEditor.resize(true);
 					}
 				});';
 
 		$editor .= '
-			console.log($("textarea_'.$id.'"));
+			//console.log($("textarea_'.$id.'"));
 			$("textarea_'.$id.'").getParent("form").addEvent("submit", function() {
-				$("textarea_'.$id.'").value = aceWrapper'.$id.'.aceEditor.getValue();
+				$("textarea_'.$id.'").value = aceWrapper[\''.$id.'\'].aceEditor.getValue();
 			});
 		';
 
@@ -285,49 +292,46 @@ class plgEditorAce extends JPlugin
 		return $editor;
 	}
 
-	function _displayButtons($name, $buttons, $asset, $author)
-	{
-		// Load modal popup behavior
-		JHtml::_('behavior.modal', 'a.modal-button');
+    /**
+     * Displays the editor buttons.
+     *
+     * @param   string  $name     The editor name
+     * @param   mixed   $buttons  [array with button objects | boolean true to display buttons]
+     * @param   string  $asset    The object asset
+     * @param   object  $author   The author.
+     *
+     * @return  string HTML
+     */
+    protected function _displayButtons($name, $buttons, $asset, $author)
+    {
+        $return = '';
 
-		$args['name'] = $name;
-		$args['event'] = 'onGetInsertMethod';
+        $args = array(
+            'name'  => $name,
+            'event' => 'onGetInsertMethod'
+        );
 
-		$return = '';
-		$results[] = $this->update($args);
+        $results = (array) $this->update($args);
 
-		foreach ($results as $result)
-		{
-			if (is_string($result) && trim($result)) {
-				$return .= $result;
-			}
-		}
+        if ($results)
+        {
+            foreach ($results as $result)
+            {
+                if (is_string($result) && trim($result))
+                {
+                    $return .= $result;
+                }
+            }
+        }
 
-		if (is_array($buttons) || (is_bool($buttons) && $buttons)) {
-			$results = $this->_subject->getButtons($name, $buttons, $asset, $author);
+        if (is_array($buttons) || (is_bool($buttons) && $buttons))
+        {
+            $buttons = $this->_subject->getButtons($name, $buttons, $asset, $author);
 
-			// This will allow plugins to attach buttons or change the behavior on the fly using AJAX
-			$return .= '<div id="editor-xtd-buttons"><div class="btn-toolbar">\n';
+            $return .= JLayoutHelper::render('joomla.editors.buttons', $buttons);
+        }
 
-			foreach ($results as $button)
-			{
-				// Results should be an object
-				if ($button->get('name')) {
-					$modal		= ($button->get('modal')) ? 'class="modal-button btn"' : null;
-					$href		= ($button->get('link')) ? ' class="btn" href="'.JURI::base().$button->get('link').'"' : null;
-					$onclick	= ($button->get('onclick')) ? 'onclick="'.$button->get('onclick').'"' : null;
-					$title      = ($button->get('title')) ? $button->get('title') : $button->get('text');
-					$return .= '<a '.$modal.' title="'.$title.'" '.$href.' '.$onclick.' rel="'.$button->get('options').'">';
-					$return .= '<i class="icon-' . $button->get('name'). '"></i> ';
-					$return .= $button->get('text').'</a>';
-				}
-			}
+        return $return;
+    }
 
-			$return .= "</div></div>\n";
-		}
-
-		return $return;
-
-
-	}
 }
