@@ -131,7 +131,7 @@ class plgEditorAce extends JPlugin
 	 */
 	function onSave($id)
 	{
-        return "document.getElementById('$id').value = aceWrapper[$id].aceEditor.getValue();\n";
+        return "document.getElementById('$id').value = aceWrapper['$id'].aceEditor.getValue();\n";
 	}
 
 	/**
