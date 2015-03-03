@@ -1,51 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="editors" method="upgrade">
-	<name>plg_editors_ace</name>
-	<version>0.0.11</version>
-	<creationDate>November 2014</creationDate>
-	<author>Sven Bluege</author>
-	<authorEmail>svenbluege@gmail.com</authorEmail>
-	<authorUrl>www.svenbluege.de</authorUrl>
-	<copyright></copyright>
-	<license>GNU General Public License version 2 or later</license>
-	<description>PLG_ACE_XML_DESCRIPTION</description>
-	<files>
-		<filename plugin="ace">ace.php</filename>
-		<filename>SpellGoogle.php</filename>	
-		<filename>index.html</filename>	
-		<folder>ace</folder>
-		<folder>js</folder>
-	</files>
-	<languages folder="admin">
-		<language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
-		<language tag="en-GB">language/en-GB.plg_editors_ace.sys.ini</language>
-	</languages>
-		<config>
-		<fields name="params">
-			<fieldset name="SPELLCHECK">
-				<field name="use_spellchecker" type="radio" default="0" label="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_LABEL" description="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_DESC">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="language" type="radio" default="en" label="PLG_EDITOR_ACE_CONFIG_LANG_LABEL" description="PLG_EDITOR_ACE_CONFIG_LANG_DESC">
-					<option value="de">de</option>
-					<option value="en">en</option>
-				</field>
-			</fieldset>
-			<fieldset name="basic">
-				<field name="syntax" type="radio" default="html" label="PLG_EDITOR_ACE_CONFIG_SYNTAX_LABEL" description="PLG_EDITOR_ACE_CONFIG_SYNATX_DESC">
-					<option value="html">HTML</option>
-					<option value="markdown">MarkDown</option>
-				</field>
-				<field name="showPrintMargin" type="radio" default="false" label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL" description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC">
-					<option value="true">on</option>
-					<option value="false">off</option>
-				</field>
-				<field name="showPrintMargin" type="radio" default="false" label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL" description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC">
-					<option value="true">on</option>
-					<option value="false">off</option>
-				</field>
-		</fieldset>
-		</fields>
-	</config>
+  <name>plg_editors_ace</name>
+  <version>0.0.11</version>
+  <creationDate>November 2014</creationDate>
+  <author>Sven Bluege</author>
+  <authorEmail>svenbluege@gmail.com</authorEmail>
+  <authorUrl>www.svenbluege.de</authorUrl>
+  <copyright></copyright>
+  <license>GNU General Public License version 2 or later</license>
+  <description>PLG_ACE_XML_DESCRIPTION</description>
+  <files>
+    <filename plugin="ace">ace.php</filename>
+    <filename>SpellGoogle.php</filename>  
+    <filename>index.html</filename> 
+    <folder>ace</folder>
+    <folder>js</folder>
+    <folder>assets</folder>
+  </files>
+  <languages folder="admin">
+    <language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
+    <language tag="en-GB">language/en-GB.plg_editors_ace.sys.ini</language>
+    <language tag="ru-RU">language/ru-RU.plg_editors_ace.ini</language>
+    <language tag="ru-RU">language/ru-RU.plg_editors_ace.sys.ini</language>
+  </languages>
+    <config>
+    <fields name="params">
+      <fieldset name="SPELLCHECK">
+        <field  name="use_spellchecker"
+            type="radio"
+            default="0"
+            class="btn-group btn-group-yesno"
+            label="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_LABEL"
+            description="PLG_EDITOR_ACE_CONFIG_SPELLCHECK_DESC"
+        >
+          <option value="0">JOFF</option>
+          <option value="1">JON</option>
+        </field>
+        <field  name="language"
+            type="radio" default="en"
+            label="PLG_EDITOR_ACE_CONFIG_LANG_LABEL"
+            description="PLG_EDITOR_ACE_CONFIG_LANG_DESC"
+        >
+          <option value="de">de</option>
+          <option value="en">en</option>
+        </field>
+      </fieldset>
+        <fieldset name="basic">
+          <field  name="theme"
+                  type="list"
+                  default="textmate"
+                  label="PLG_EDITOR_ACE_CONFIG_THEME_LABEL"
+        >
+          <option value="ambiance">ambiance</option>
+          <option value="chaos">chaos</option>
+          <option value="chrome">chrome</option>
+          <option value="clouds">clouds</option>
+          <option value="clouds_midnight">clouds_midnight</option>
+          <option value="cobalt">cobalt</option>
+          <option value="crimson_editor">crimson_editor</option>
+          <option value="dawn">dawn</option>
+          <option value="dreamweaver">dreamweaver</option>
+          <option value="eclipse">eclipse</option>
+          <option value="github">github</option>
+          <option value="idle_fingers">idle_fingers</option>
+          <option value="katzenmilch">katzenmilch</option>
+          <option value="kr">kr</option>
+          <option value="kr_theme">kr_theme</option>
+          <option value="kuroir">kuroir</option>
+          <option value="merbivore">merbivore</option>
+          <option value="merbivore_soft">merbivore_soft</option>
+          <option value="mono_industrial">mono_industrial</option>
+          <option value="monokai">monokai</option>
+          <option value="pastel_on_dark">pastel_on_dark</option>
+          <option value="solarized_dark">solarized_dark</option>
+          <option value="solarized_light">solarized_light</option>
+          <option value="terminal">terminal</option>
+          <option value="textmate">textmate</option>
+          <option value="tomorrow">tomorrow</option>
+          <option value="tomorrow_night_blue">tomorrow_night_blue</option>
+          <option value="tomorrow_night_bright">tomorrow_night_bright</option>
+          <option value="tomorrow_night_eighties">tomorrow_night_eighties</option>
+          <option value="tomorrow_night">tomorrow_night</option>
+          <option value="twilight">twilight</option>
+          <option value="vibrant_ink">vibrant_ink</option>
+          <option value="xcode">xcode</option>
+        </field>
+        <field  name="syntax"
+            type="radio"
+            default="html"
+            label="PLG_EDITOR_ACE_CONFIG_SYNTAX_LABEL"
+            description="PLG_EDITOR_ACE_CONFIG_SYNATX_DESC"
+        >
+          <option value="html">HTML</option>
+          <option value="markdown">MarkDown</option>
+        </field>
+        <field  name="showPrintMargin"
+            type="radio"
+            class="btn-group btn-group-yesno"
+            default="false"
+            label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL"
+            description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC"
+        >
+          <option value="false">JOFF</option>
+          <option value="true">JON</option>
+        </field>
+        <field  name="enable_emmet"
+            type="radio"
+            default="0"
+            class="btn-group btn-group-yesno"
+            label="PLG_EDITOR_ACE_CONFIG_EMMET_LABEL"
+            description="PLG_EDITOR_ACE_CONFIG_EMMET_DESC"
+        >
+          <option value="false">JOFF</option>
+          <option value="true">JON</option>
+        </field>
+      </fieldset>
+    </fields>
+  </config>
 </extension>
