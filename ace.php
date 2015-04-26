@@ -13,34 +13,14 @@ defined('_JEXEC') or die;
  */
 class plgEditorAce extends JPlugin
 {
-
-  private $use_spellchecker = false;
-  private $spellchecker_language = 'en_US';
-
+  
   /**
-   * Constructor
+   * Affects constructor behavior. If true, language files will be loaded automatically.
    *
-   * @param  object  $subject  The object to observe
-   * @param  array   $config   An array that holds the plugin configuration
-   *
-   * @since       1.5
+   * @var    boolean
+   * @since  12.3
    */
-  public function __construct(&$subject, $config)
-  {
-    
-    parent::__construct($subject, $config);
-    $this->use_spellchecker       = $config['params']->get('use_spellchecker', false);
-    $this->spellchecker_language  = $config['params']->get('language', 'en_US');
-    $this->syntax                 = $config['params']->get('syntax', 'html');
-    $this->theme                  = $config['params']->get('theme', 'textmate');
-    $this->showPrintMargin        = $config['params']->get('showPrintMargin', 'false');
-    $this->enable_emmet           = $config['params']->get('enable_emmet', 'false');
-    
-    $this->ace_path               = JURI::root().'plugins/editors/ace';
-    $this->document               = JFactory::getDocument();
-
-    $this->loadLanguage();
-  }
+  protected $autoloadLanguage = true;
 
   /**
    * Method to handle the onInitEditor event.
@@ -51,26 +31,16 @@ class plgEditorAce extends JPlugin
    */
   public function onInit()
   {
-    $ap  = $this->ace_path;
-    $doc = $this->document;
+    $this->document = JFactory::getDocument();
+    $basePath = JURI::root() . 'plugins/editors/ace';
     
-    $doc->addStyleSheet("$ap/assets/css/style.css");
-    $doc->addScript("$ap/ace/src-min/ace.js");
-    $doc->addScript("$ap/assets/js/init.js");
-    
-    if ($this->use_spellchecker) {
-      $doc->addScript("$ap/ace/src-min/ext-spellcheck.js");
-      $doc->addScriptDeclaration('ace.require("ace/ext/spellcheck");');
-      $doc->addScript("$ap/js/typo/typo.js");
-      $doc->addScript("$ap/plugins/editors/ace/js/spellcheck_ace.js");
-    }
+    $this->document->addStyleSheet("$basePath/assets/css/style.css");
+    $this->document->addScript("//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js");
+    $this->document->addScript("$basePath/assets/js/cookie.js");
+    $this->document->addCustomTag("<script src='$basePath/assets/js/init.js'></script>");
 
-    if($this->enable_emmet) {
-      $doc->addScript("$ap/ace/src-min/ext-emmet.js");
-      $doc->addScript("$ap/ace/src-min/ext-emmet-core.js");
-    }
+    return '';
   }
-
   /**
    * Copy editor content to form field.
    *
@@ -79,7 +49,7 @@ class plgEditorAce extends JPlugin
    */
   function onSave($id)
   {
-        return "document.getElementById('$id').value = aceWrapper['$id'].aceEditor.getValue();\n";
+    return "document.getElementById('$id').value = Joomla.editors.instances['$id'].editor.getValue();\n";
   }
 
   /**
@@ -91,7 +61,7 @@ class plgEditorAce extends JPlugin
    */
   function onGetContent($id)
   {
-    return "aceWrapper['$id'].aceEditor.getValue();\n";
+    return "Joomla.editors.instances['$id'].editor.getValue();\n";
   }
 
   /**
@@ -105,7 +75,7 @@ class plgEditorAce extends JPlugin
   function onSetContent($id, $html)
   {
 
-    return "aceWrapper['$id'].aceEditor.setValue($html);\n";
+    return "Joomla.editors.instances['$id'].editor.setValue($html);\n";
   }
 
   /**
@@ -122,7 +92,7 @@ class plgEditorAce extends JPlugin
       $done = true;
       $this->document->addScriptDeclaration("
         function jInsertEditorText(text, editor) {
-          aceWrapper[editor].aceEditor.insert(text);
+          Joomla.editors.instances['$id'].editor.insert(text);
         }
       ");
     }
@@ -149,94 +119,52 @@ class plgEditorAce extends JPlugin
    */
   function onDisplay($name, $content, $width, $height, $col, $row, $buttons = true, $id = null, $asset = null, $author = null, $params = array())
   {
-    if (empty($id)) {
-      $id = $name;
-    }
+    $id = empty($id) ? $name : $id;
 
-    // Only add "px" to width and height if they are not given as a percentage
-    if (is_numeric($width)) {
-      $width .= 'px';
-    }
+    $options = new stdClass;
 
-    if (is_numeric($height)) {
-      $height .= 'px';
-    }   
+    $options->width   = is_numeric($width) ? $width.'px'  : $width;
+    $options->height = is_numeric($height) ? $height.'px' : $height;
+
+    $options->editorid  = $id;
+    
+    $options->theme = 'ace/theme/' . $this->params->get('theme', 'chrome');
+    
+    $options->mode = 'ace/mode/' . $this->params->get('syntax', 'html');
+    
+    $options->showPrintMargin = $this->params->get('showPrintMargin', 'false');
+    
+    $options->useWrapMode = true;
+    
+    $options->wrapModeBtnId = 'softwrap_' . $id;
+    
+    $options->enableEmmet = $this->params->get('enable_emmet', 'false');
+    if($options->enableEmmet) {
+      $this->document->addScript("//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ext-emmet.js");
+      $this->document->addScript("//cloud9ide.github.io/emmet-core/emmet.js");
+    }
 
     $buttons = $this->_displayButtons($id, $buttons, $asset, $author);
-    $editor  = "<textarea id='textarea_$id' name='$name' class='' style='display: none;'>$content</textarea>";
-    $editor .= "
-      <div id='resize_$id' style='height: 500px;'>
-        <div id='$id' class='editor' style='width: $width; height: 100%;'>$content</div>
-      </div>
-      
-      <div style='cursor: n-resize;float: right; padding-left: 20px; text-align: right;' id='resizeController_$id'>".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>
-      <div style='cursor: pointer; float: right; text-align: right;' id='softwrap_$id'>".JText::_('PLG_EDITOR_ACE_SOFTWRAP')."</div>
-      <div style='padding-right: 20px; float:left'>".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."</div>
-    ";
-    if ($this->use_spellchecker) {      
-      $editor .= "      
-        <div class='ace-buttons' id='buttons_$id'>
-          <div style='cursor: pointer; padding-right: 20px; float:left' id='${id}_enable'>
-            ".JText::_('PLG_EDITOR_ACE_SPELLCHECK_ENABLE')."
-          </div>
-          <div style='padding-right: 20px; float:left'>
-              <span style='cursor: pointer; padding-left: 10px;' id='".$id."_disable'>".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."</span>
-            <span class='lang' style='cursor: pointer; padding-left: 10px;' id='${id}_lang_de'>De</span>
-            <span class='lang' style='cursor: pointer; padding-left: 10px;' id='${id}_lang_en'>En</span>
-          </div>
-        </div>
-        
-          ";
-    }
+
+    $html   = [];
+    $html[] = '<textarea name="' . $name . '" id="' . $id . '" style="display: none;">' . $content . '</textarea>';
     
-    $editor .= "<div style='clear:both'></div> $buttons";
-    $editor .= "
-      <script>
-        aceWrapper['$id'] = new AceWrapper({
-          editorid: '$id',
-          theme: 'ace/theme/$this->theme',
-          mode: 'ace/mode/$this->syntax',
-          showPrintMargin: $this->showPrintMargin,
-          useWrapMode: true,
-          wrapModeButtonId: 'softwrap_$id',
-          enableEmmet: $this->enable_emmet,
-        });
-      ";
-    
-    if ($this->use_spellchecker) {
-    $editor .= "
-      spellchecker['$id'] = new SpellChecker({
-        path: '$this->ace_path',
-        container: $('buttons_$id'),
-        lang: '$this->spellchecker_language',
-        editor: '$id',
-        buttonid_enable: '${id}_enable',
-        buttonid_disable: '${id}_disable'
-      });               
-    ";
-    }   
-          
-    $editor .="
-      $('resize_$id').makeResizable({
-          handle: $('resizeController_$id'),
-          modifiers: {x: false, y: 'height'},
-        grid: 10,
-        onComplete: function(){
-          aceWrapper['$id'].aceEditor.resize(true);
-        }
-      });
-    ";
+    $html[] = '<div class="buttons-wrap">';
+    //$html[] = '   <a href="#" id="softwrap_' . $id . '">' . JText::_("PLG_EDITOR_ACE_SOFTWRAP") . '</a>';
+    $html[] = '   <span class="fullscreen-text">' . JText::_("PLG_EDITOR_ACE_FULLSCREEN") . '</span>';
+    $html[] = '</div>';
 
-    $editor .= "
-      $('textarea_$id').getParent('form').addEvent('submit', function() {
-        $('textarea_$id').value = aceWrapper['$id'].aceEditor.getValue();
-      });
-    ";
+    $html[] = '<div style="clear:both"></div>' . $buttons;
 
-    $editor .=' </script>';
+    $html[] = '<script type="text/javascript">';
+    $html[] = '(function (id, options) {';
+    $html[] = '   Plugin = jQuery("#" + id).ace(options)[0]';
+    $html[] = '   Joomla.editors.instances[id] = jQuery.data( Plugin, "plugin_ace" );';
+    $html[] = '}(' . json_encode($id) . ', ' . json_encode($options) . '));';
+    $html[] = '</script>';
 
 
-    return $editor;
+    return implode("\n", $html);
   }
 
     /**
