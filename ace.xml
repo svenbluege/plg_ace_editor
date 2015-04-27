@@ -11,8 +11,7 @@
   <description>PLG_ACE_XML_DESCRIPTION</description>
   <files>
     <filename plugin="ace">ace.php</filename>
-    <filename>index.html</filename> 
-    <folder>ace</folder>
+    <filename>index.html</filename>
     <folder>assets</folder>
   </files>
   <languages folder="admin">
