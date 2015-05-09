@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="editors" method="upgrade">
-  <name>plg_editors_ace</name>
-  <version>0.1</version>
+  <name>PLG_EDITORS_ACE</name>
+  <version>0.2</version>
   <creationDate>26.04.2015</creationDate>
   <author>Shangin Nikolai</author>
   <authorEmail>shanginn@gmail.com</authorEmail>
@@ -14,11 +14,11 @@
     <filename>index.html</filename>
     <folder>assets</folder>
   </files>
-  <languages folder="admin">
-    <language tag="en-GB">language/en-GB.plg_editors_ace.ini</language>
-    <language tag="en-GB">language/en-GB.plg_editors_ace.sys.ini</language>
-    <language tag="ru-RU">language/ru-RU.plg_editors_ace.ini</language>
-    <language tag="ru-RU">language/ru-RU.plg_editors_ace.sys.ini</language>
+  <languages folder="language">
+    <language tag="en-GB">en-GB.plg_editors_ace.ini</language>
+    <language tag="en-GB">en-GB.plg_editors_ace.sys.ini</language>
+    <language tag="ru-RU">ru-RU.plg_editors_ace.ini</language>
+    <language tag="ru-RU">ru-RU.plg_editors_ace.sys.ini</language>
   </languages>
     <config>
     <fields name="params">
