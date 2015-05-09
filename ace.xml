@@ -24,10 +24,10 @@
     <fields name="params">
       <fieldset name="basic">
         <field  name="theme"
-                type="list"
-                default="textmate"
-                label="PLG_EDITOR_ACE_CONFIG_THEME_LABEL"
-        >
+          type="list"
+          default="textmate"
+          label="PLG_EDITOR_ACE_CONFIG_THEME_LABEL"
+          >
           <option value="ambiance">Ambiance</option>
           <option value="chaos">Chaos</option>
           <option value="chrome">Chrome</option>
@@ -63,31 +63,31 @@
           <option value="xcode">Xcode</option>
         </field>
         <field  name="syntax"
-            type="list"
-            default="html"
-            label="PLG_EDITOR_ACE_CONFIG_SYNTAX_LABEL"
-            description="PLG_EDITOR_ACE_CONFIG_SYNATX_DESC"
-        >
+          type="list"
+          default="html"
+          label="PLG_EDITOR_ACE_CONFIG_SYNTAX_LABEL"
+          description="PLG_EDITOR_ACE_CONFIG_SYNATX_DESC"
+          >
           <option value="html">HTML</option>
           <option value="markdown">MarkDown</option>
         </field>
         <field  name="showPrintMargin"
-            type="radio"
-            class="btn-group btn-group-yesno"
-            default="false"
-            label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL"
-            description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC"
-        >
+          type="radio"
+          class="btn-group btn-group-yesno"
+          default="false"
+          label="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_LABEL"
+          description="PLG_EDITOR_ACE_CONFIG_PRINTMARGIN_DESC"
+          >
           <option value="false">JOFF</option>
           <option value="true">JON</option>
         </field>
         <field  name="enable_emmet"
-            type="radio"
-            default="false"
-            class="btn-group btn-group-yesno"
-            label="PLG_EDITOR_ACE_CONFIG_EMMET_LABEL"
-            description="PLG_EDITOR_ACE_CONFIG_EMMET_DESC"
-        >
+          type="radio"
+          default="false"
+          class="btn-group btn-group-yesno"
+          label="PLG_EDITOR_ACE_CONFIG_EMMET_LABEL"
+          description="PLG_EDITOR_ACE_CONFIG_EMMET_DESC"
+          >
           <option value="false">JOFF</option>
           <option value="true">JON</option>
         </field>
@@ -96,6 +96,6 @@
   </config>
   
   <updateservers>
-      <server type="extension" priority="1" name="Shance extension's updates from git">https://raw.githubusercontent.com/Shance/JUpdates/master/ace.xml</server>
+      <server type="extension" priority="1" name="Shance extensions updates from git">https://raw.githubusercontent.com/Shance/JUpdates/master/ace.xml</server>
   </updateservers>
 </extension>
