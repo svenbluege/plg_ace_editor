@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5" type="plugin" group="editors" method="upgrade">
+<extension version="3.4" type="plugin" group="editors" method="upgrade">
   <name>PLG_EDITORS_ACE</name>
-  <version>0.2</version>
+  <version>0.3</version>
   <creationDate>26.04.2015</creationDate>
   <author>Shangin Nikolai</author>
   <authorEmail>shanginn@gmail.com</authorEmail>
