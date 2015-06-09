@@ -1,7 +1,7 @@
 <?php
 /**
- * @copyright	Copyright (C) 2012 Sven Bluege, Inc. All rights reserved.
- * @license		GNU General Public License version 2 or later
+ * @copyright Copyright (C) 2012 Sven Bluege, Inc. All rights reserved.
+ * @license   GNU General Public License version 2 or later
  */
 
 // no direct access
@@ -13,284 +13,159 @@ defined('_JEXEC') or die;
  */
 class plgEditorAce extends JPlugin
 {
+  
+  /**
+   * Affects constructor behavior. If true, language files will be loaded automatically.
+   *
+   * @var    boolean
+   * @since  12.3
+   */
+  protected $autoloadLanguage = true;
 
-	private $use_spellchecker = false;
-	private $spellchecker_language = 'en_US';
+  /**
+   * Method to handle the onInitEditor event.
+   *  - Initialises the Editor
+   *
+   * @return  string  JavaScript Initialization string
+   * @since 1.5
+   */
+  public function onInit()
+  {
+    $this->document = JFactory::getDocument();
+    $basePath = JURI::root() . 'plugins/editors/ace';
+    
+    $this->document->addStyleSheet("$basePath/assets/css/style.css");
+    $this->document->addScript("//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js");
+    $this->document->addScript("$basePath/assets/js/cookie.js");
+    $this->document->addCustomTag("<script src='$basePath/assets/js/init.js'></script>");
 
-	/**
-	 * Constructor
-	 *
-	 * @param  object  $subject  The object to observe
-	 * @param  array   $config   An array that holds the plugin configuration
-	 *
-	 * @since       1.5
-	 */
-	public function __construct(&$subject, $config)
-	{
-		
-		parent::__construct($subject, $config);
-		$this->use_spellchecker = $config['params']->get('use_spellchecker', false);
-		$this->spellchecker_language = $config['params']->get('language', 'en_US');
-		$this->syntax = $config['params']->get('syntax', 'html');
-		$this->showPrintMargin = $config['params']->get('showPrintMargin', 'false');
-		$this->loadLanguage();
-	}
+    return '';
+  }
+  /**
+   * Copy editor content to form field.
+   *
+   *
+   * @return  string JavaScript save function
+   */
+  function onSave($id)
+  {
+    return "document.getElementById('$id').value = Joomla.editors.instances['$id'].editor.getValue();\n";
+  }
 
-	/**
-	 * Method to handle the onInitEditor event.
-	 *  - Initialises the Editor
-	 *
-	 * @return	string	JavaScript Initialization string
-	 * @since 1.5
-	 */
-	public function onInit()
-	{
-		$txt =	'
+  /**
+   * Get the editor content.
+   *
+   * @param string  $id   The id of the editor field.
+   *
+   * @return  string
+   */
+  function onGetContent($id)
+  {
+    return "Joomla.editors.instances['$id'].editor.getValue();\n";
+  }
 
+  /**
+   * Set the editor content.
+   *
+   * @param string  $id   The id of the editor field.
+   * @param string  $html The content to set.
+   *
+   * @return  string
+   */
+  function onSetContent($id, $html)
+  {
 
-			<style type="text/css" media="screen">
-			    .adminform .editor { 
-			        position: relative;
-			    }
+    return "Joomla.editors.instances['$id'].editor.setValue($html);\n";
+  }
 
-			    .ace-buttons {
-			        min-width: 400px;
-			    }
+  /**
+   * @param string  $id
+   *
+   * @return  string
+   */
+  function onGetInsertMethod($id)
+  {
+    static $done = false;
 
-			    .ace_editor.fullScreen {
-                    height: auto;
-                    width: auto;
-                    border: 0;
-                    margin: 0;
-                    position: fixed !important;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    z-index: 2000;
-                }
+    // Do this only once.
+    if (!$done) {
+      $done = true;
+      $this->document->addScriptDeclaration("
+        function jInsertEditorText(text, editor) {
+          Joomla.editors.instances['$id'].editor.insert(text);
+        }
+      ");
+    }
 
-                .fullScreen {
-                    overflow: hidden
-                }
-			</style>
+    return true;
+  }
 
-			
-			
-			<script src="../plugins/editors/ace/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
-			
-			
-			<script type="text/javascript">
-			
-			var dom = ace.require("ace/lib/dom");					
-            var aceWrapper = [];
-            var spellchecker = [];
-			
+  /**
+   * Display the editor area.
+   *
+   * @param string  $name   The control name.
+   * @param string  $html   The contents of the text area.
+   * @param string  $width    The width of the text area (px or %).
+   * @param string  $height   The height of the text area (px or %).
+   * @param int   $col    The number of columns for the textarea.
+   * @param int   $row    The number of rows for the textarea.
+   * @param boolean $buttons  True and the editor buttons will be displayed.
+   * @param string  $id     An optional ID for the textarea (note: since 1.6). If not supplied the name is used.
+   * @param string  $asset
+   * @param object  $author
+   * @param array $params   Associative array of editor parameters.
+   *
+   * @return  string
+   */
+  function onDisplay($name, $content, $width, $height, $col, $row, $buttons = true, $id = null, $asset = null, $author = null, $params = array())
+  {
+    $id = empty($id) ? $name : $id;
 
-			ace.require("ace/commands/default_commands").commands.push(
-				{
-				    name: "Toggle Fullscreen",
-				    bindKey: "F11",
-				    exec: function(editor) {
-				        var fullScreen = dom.toggleCssClass(document.body, "fullScreen");
-                        dom.setCssClass(editor.container, "fullScreen", fullScreen);
-                        editor.setAutoScrollEditorIntoView(!fullScreen);
-                        editor.resize(true);
+    $options = new stdClass;
 
-				    }
-				}
-			);
-			
-			
+    $options->width   = is_numeric($width) ? $width.'px'  : $width;
+    $options->height = is_numeric($height) ? $height.'px' : $height;
 
-			</script>
-			<script src="../plugins/editors/ace/js/aceWrapper.js" type="text/javascript" charset="utf-8"></script>		
+    $options->editorid  = $id;
+    
+    $options->theme = 'ace/theme/' . $this->params->get('theme', 'chrome');
+    
+    $options->mode = 'ace/mode/' . $this->params->get('syntax', 'html');
+    
+    $options->showPrintMargin = $this->params->get('showPrintMargin', 'false');
+    
+    $options->useWrapMode = true;
+    
+    $options->wrapModeBtnId = 'softwrap_' . $id;
+    
+    $options->enableEmmet = $this->params->get('enable_emmet', 'false');
+    if($options->enableEmmet) {
+      $this->document->addScript("//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ext-emmet.js");
+      $this->document->addScript("//cloud9ide.github.io/emmet-core/emmet.js");
+    }
 
-			';
+    $buttons = $this->_displayButtons($id, $buttons, $asset, $author);
 
-			if ($this->use_spellchecker) {
-				$txt .= '
-					<script src="../plugins/editors/ace/ace/src-min/ext-spellcheck.js" type="text/javascript" charset="utf-8"></script>
-					<script type="text/javascript">
-						ace.require("ace/ext/spellcheck");
-					</script>
-					<script src="../plugins/editors/ace/js/typo/typo.js" type="text/javascript" charset="utf-8"></script>		
-					<script src="../plugins/editors/ace/js/spellcheck_ace.js" type="text/javascript" charset="utf-8"></script>		
-							
-					';
-			}
+    $html   = [];
+    $html[] = '<textarea name="' . $name . '" id="' . $id . '" style="display: none;">' . $content . '</textarea>';
+    
+    $html[] = '<div class="buttons-wrap">';
+    //$html[] = '   <a href="#" id="softwrap_' . $id . '">' . JText::_("PLG_EDITOR_ACE_SOFTWRAP") . '</a>';
+    $html[] = '   <span class="fullscreen-text">' . JText::_("PLG_EDITOR_ACE_FULLSCREEN") . '</span>';
+    $html[] = '</div>';
 
-		return $txt;
-	}
+    $html[] = '<div style="clear:both"></div>' . $buttons;
 
-	/**
-	 * Copy editor content to form field.
-	 *
-	 *
-	 * @return	string JavaScript save function
-	 */
-	function onSave($id)
-	{
-        return "document.getElementById('$id').value = aceWrapper['$id'].aceEditor.getValue();\n";
-	}
-
-	/**
-	 * Get the editor content.
-	 *
-	 * @param	string	$id		The id of the editor field.
-	 *
-	 * @return	string
-	 */
-	function onGetContent($id)
-	{
-		return "aceWrapper['$id'].aceEditor.getValue();\n";
-	}
-
-	/**
-	 * Set the editor content.
-	 *
-	 * @param	string	$id		The id of the editor field.
-	 * @param	string	$html	The content to set.
-	 *
-	 * @return	string
-	 */
-	function onSetContent($id, $html)
-	{
-
-		return "aceWrapper['$id'].aceEditor.setValue($html);\n";
-	}
-
-	/**
-	 * @param	string	$id
-	 *
-	 * @return	string
-	 */
-	function onGetInsertMethod($id)
-	{
-		static $done = false;
-
-		// Do this only once.
-		if (!$done) {
-            $done = true;
-			$doc = JFactory::getDocument();
-			$js = "\n" .
-                  "function jInsertEditorText(text, editor) {" .
-				  "   aceWrapper[editor].aceEditor.insert(text);" .
-			      "}\n";
-			$doc->addScriptDeclaration($js);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Display the editor area.
-	 *
-	 * @param	string	$name		The control name.
-	 * @param	string	$html		The contents of the text area.
-	 * @param	string	$width		The width of the text area (px or %).
-	 * @param	string	$height		The height of the text area (px or %).
-	 * @param	int		$col		The number of columns for the textarea.
-	 * @param	int		$row		The number of rows for the textarea.
-	 * @param	boolean	$buttons	True and the editor buttons will be displayed.
-	 * @param	string	$id			An optional ID for the textarea (note: since 1.6). If not supplied the name is used.
-	 * @param	string	$asset
-	 * @param	object	$author
-	 * @param	array	$params		Associative array of editor parameters.
-	 *
-	 * @return	string
-	 */
-	function onDisplay($name, $content, $width, $height, $col, $row, $buttons = true, $id = null, $asset = null, $author = null, $params = array())
-	{
-		if (empty($id)) {
-			$id = $name;
-		}
-
-		// Only add "px" to width and height if they are not given as a percentage
-		if (is_numeric($width)) {
-			$width .= 'px';
-		}
-
-		if (is_numeric($height)) {
-			$height .= 'px';
-		}		
-
-		$buttons = $this->_displayButtons($id, $buttons, $asset, $author);
-		$editor  = "<textarea id=\"textarea_$id\" name=\"$name\" class=\"\" style=\"display: none;\">$content</textarea>";
-		$editor  .= "<div id=\"resize_$id\" style=\"height: 500px;\">
-						<div id=\"$id\" class=\"editor\" style=\"width: $width; height: 100%;\">$content</div>
-					</div>
-					
-					<div style=\"cursor: n-resize;float: right; padding-left: 20px; text-align: right;\" id=\"resizeController_$id\">".JText::_('PLG_EDITOR_ACE_RESIZE')."</div>
-					<div style=\"cursor: pointer; float: right; text-align: right;\" id=\"softwrap_$id\">".JText::_('PLG_EDITOR_ACE_SOFTWRAP')."</div>
-					<div style=\"padding-right: 20px; float:left\">".JText::_('PLG_EDITOR_ACE_FULLSCREEN')."</div>
-					";
-		if ($this->use_spellchecker) {			
-		$editor .= "			
-				<div class=\"ace-buttons\" id=\"buttons_$id\">
-					<div style=\"cursor: pointer; padding-right: 20px; float:left\" id=\"".$id."_enable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_ENABLE')."</div>
-					<div style=\"padding-right: 20px; float:left\">
-					    <span style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_disable\">".JText::_('PLG_EDITOR_ACE_SPELLCHECK_DISABLE')."</span>
-						<span class=\"lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_de\">De</span>
-						<span class=\"lang\" style=\"cursor: pointer; padding-left: 10px;\" id=\"".$id."_lang_en\">En</span>
-					</div>
-				</div>
-				
-					";
-		}
-	    $editor .= "			
-					<div style=\"clear:both\"></div>
-					" . $buttons;
-		$editor .= '
-			<script>
-
-				    aceWrapper[\''.$id.'\'] = new AceWrapper({
-					editorid: "'.$id.'",
-					theme: "ace/theme/monokai",
-					mode: "ace/mode/'.$this->syntax.'",
-					showPrintMargin: '.$this->showPrintMargin.',
-					useWrapMode: true,
-					wrapModeButtonId: "softwrap_'.$id.'"
-
-				});
-			';
-		
-		if ($this->use_spellchecker) {
-		$editor .='	
-				    spellchecker[\''.$id.'\'] = new SpellChecker({
-						path: "'.JURI::root().'plugins/editors/ace/",
-						container: $(\'buttons_'.$id.'\'),
-						lang: "'.$this->spellchecker_language.'",
-						editor: "'.$id.'",
-						buttonid_enable: "'.$id.'_enable",
-						buttonid_disable: "'.$id.'_disable"
-					});								
-				';
-		}		
-			    
-		$editor .='
-			    
-			    $("resize_'.$id.'").makeResizable({
-			    	handle: $("resizeController_'.$id.'"),
-			    	modifiers: {x: false, y: "height"},
-					grid: 10,
-					onComplete: function(){
-						aceWrapper[\''.$id.'\'].aceEditor.resize(true);
-					}
-				});';
-
-		$editor .= '
-			//console.log($("textarea_'.$id.'"));
-			$("textarea_'.$id.'").getParent("form").addEvent("submit", function() {
-				$("textarea_'.$id.'").value = aceWrapper[\''.$id.'\'].aceEditor.getValue();
-			});
-		';
-
-		$editor .='	</script>';
+    $html[] = '<script type="text/javascript">';
+    $html[] = '(function (id, options) {';
+    $html[] = '   Plugin = jQuery("#" + id).ace(options)[0]';
+    $html[] = '   Joomla.editors.instances[id] = jQuery.data( Plugin, "plugin_ace" );';
+    $html[] = '}(' . json_encode($id) . ', ' . json_encode($options) . '));';
+    $html[] = '</script>';
 
 
-		return $editor;
-	}
+    return implode("\n", $html);
+  }
 
     /**
      * Displays the editor buttons.
